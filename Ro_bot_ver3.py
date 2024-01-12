@@ -237,7 +237,7 @@ def Strategy(passcoin):
     macdhist = float(passcoin.dataframe['Macdhist'].iloc[[-1]].iloc[0])
     adx = float(passcoin.dataframe['ADX'].iloc[[-1]].iloc[0])
     smaK = float(result['SMA_50'].iloc[[-1]].iloc[0])
-    sma = float(result['SMA_100'][[-1]].iloc[0])
+    sma = float(result['SMA_100'].iloc[[-1]].iloc[0])
     percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 10
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
