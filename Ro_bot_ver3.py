@@ -31,8 +31,8 @@ def sendMessage():
     if len(balances) > 1:
         bot.send_message(id, f'balance now - {str(balances[-1])}')
 
-api_secret = 'vOpCInjLU7gnTUgIWNbTYIEQSQ7Da77JyUFVMMYyBFCWRo6dmJzwBBKISiPiERfa'
-api_key = 'DG984fylA2GxRcNMQYCaxtHILBKxekGTM6wbLB4yn9z4D14CMZOMhacaSkMlVF8y'
+api_secret = 'vx7NmftzHka1U9gjfLcCG2Teg6XeXYQFnpFPmTKw0ncdGs8b1jlwxGZyrrMivv4A'
+api_key = 'JVp4ILHRVsxK8frz3ge1ZGeUqnB9D8ZTt6V6BNktqt9V2qXC4LZX3roRpDL14kIE'
 orders = []
 
 client = Client(api_key, api_secret)
