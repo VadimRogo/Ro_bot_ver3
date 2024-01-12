@@ -241,7 +241,7 @@ def Strategy(passcoin):
     percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 10
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     # oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
-    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 20 and rsi <= 35 and adx > adxmo:
+    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 20 and rsi <= 35:
         OnPosition = True
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
