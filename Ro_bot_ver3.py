@@ -293,8 +293,10 @@ for coin in whiteList:
     get_history_data(coin)
     
 for passcoin in passescoins:
-    get_data(passcoin.coin)
-    
+    try:
+        get_data(passcoin.coin)
+    except Exception as E:
+        print(f'Error with coin {passcoin.coin}')        
 startTelebot()
 OnPosition = False
 for i in range(600):
