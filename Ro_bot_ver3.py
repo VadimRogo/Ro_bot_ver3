@@ -30,6 +30,8 @@ def sendSold(symbol):
 def sendMessage():
     if len(balances) > 1:
         bot.send_message(id, f'balance now - {str(balances[-1])}')
+def sendCantBuy(symbol):
+    bot.send_message(f"We can't buy coin {symbol}")
 
 api_secret = 'vx7NmftzHka1U9gjfLcCG2Teg6XeXYQFnpFPmTKw0ncdGs8b1jlwxGZyrrMivv4A'
 api_key = 'JVp4ILHRVsxK8frz3ge1ZGeUqnB9D8ZTt6V6BNktqt9V2qXC4LZX3roRpDL14kIE'
@@ -167,6 +169,7 @@ def buy(symbol, price):
                 tickets.append(x)
     except Exception as E:
         print(E)    
+        sendCantBuy(symbol)
         print(symbol)
 
 def sell(ticket):
@@ -308,6 +311,7 @@ for i in range(600):
             Strategy(passcoin)
         except Exception as E:
             print(E)
+            whiteList.pop(passcoin.coin)
             continue
     if i % 30 == 0:
         sendMessage()
