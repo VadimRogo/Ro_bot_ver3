@@ -24,16 +24,16 @@ def sendLose(symbol):
 # def sendSignalToBuy(coin):
 #     bot.send_message(id, f'We should buy {coin}')
 def sendBought(symbol):
-    bot.send_message(f'We bought {symbol}')
+    bot.send_message(id, f'We bought {symbol}')
 def sendSold(symbol):
-    bot.send_message(f"We sold {symbol}")
+    bot.send_message(id, f"We sold {symbol}")
 def sendMessage():
     if len(balances) > 1:
         bot.send_message(id, f'balance now - {str(balances[-1])}')
 def sendCantBuy(symbol):
-    bot.send_message(f"We can't buy coin {symbol}")
+    bot.send_message(id, f"We can't buy coin {symbol}")
 def sendWhiteList(whiteList):
-    bot.send_message(f"White list is {whiteList}")
+    bot.send_message(id, f"White list is {whiteList}")
 
 api_secret = 'vx7NmftzHka1U9gjfLcCG2Teg6XeXYQFnpFPmTKw0ncdGs8b1jlwxGZyrrMivv4A'
 api_key = 'JVp4ILHRVsxK8frz3ge1ZGeUqnB9D8ZTt6V6BNktqt9V2qXC4LZX3roRpDL14kIE'
