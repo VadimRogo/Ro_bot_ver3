@@ -314,7 +314,7 @@ for i in range(600):
             Strategy(passcoin)
         except Exception as E:
             print(E)
-            whiteList.pop(passcoin.coin)
+            whiteList.remove(passcoin.coin)
             continue
     if i % 30 == 0:
         sendMessage()
