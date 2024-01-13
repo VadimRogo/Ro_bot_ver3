@@ -314,12 +314,12 @@ for i in range(600):
             Strategy(passcoin)
         except Exception as E:
             print(E)
-            whiteList.remove(passcoin.coin)
+            passescoins.remove(passcoin)
             continue
     if i % 30 == 0:
         sendMessage()
         makeStatistic(i)
     print('Cycle ', i)
-    time.sleep(60)
+    time.sleep(30)
 
 
