@@ -78,7 +78,7 @@ class ticket:
 def get_history_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "5 hours ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "12 hours ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
@@ -320,6 +320,6 @@ for i in range(600):
         sendMessage()
         makeStatistic(i)
     print('Cycle ', i)
-    time.sleep(30)
+    time.sleep(60)
 
 
