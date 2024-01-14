@@ -75,10 +75,20 @@ class ticket:
         self.sold = False,
         self.precision = precision,
 
+def get_trend_data(coin):
+    client = Client(api_key, api_secret)
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1HOUR, "2 hours ago UTC")
+    result = pd.DataFrame(klines)
+    result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
+    result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
+    result['time'] = pd.to_datetime(result['time'], unit='ms')
+    return result
+
+    
 def get_history_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "12 hours ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "5 hours ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
@@ -246,8 +256,7 @@ def Strategy(passcoin):
     percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 10
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     # oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
-    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 20 and rsi <= 35:
-        OnPosition = True
+    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 20 and rsi <= 35 and adx > adxmo:
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
@@ -281,18 +290,19 @@ def makeWhiteList(coins):
     whiteList = []
     for coin in coins:
         try:
-            result = get_history_data(coin)
+            result = get_trend_data(coin)
             openPrice = float(result['Close'].iloc[[0]].iloc[0])
             closePrice = float(result['Close'].iloc[[-1]].iloc[0])
             if closePrice > openPrice:
                 whiteList.append(coin)
+                print(coin)
         except Exception as E:
             continue
     
 
 
 passescoins = []
-coins = ['BTCUSDT', 'LTCUSDT', 'ETHUSDT', 'NEOUSDT', 'BNBUSDT', 'QTUMUSDT', 'EOSUSDT', 'SNTUSDT', 'BNTUSDT', 'GASUSDT', 'OAXUSDT', 'ZRXUSDT', 'OMGUSDT', 'LRCUSDT', 'TRXUSDT', 'FUNUSDT', 'KNCUSDT', 'XVGUSDT', 'IOTAUSDT', 'LINKUSDT', 'CVCUSDT', 'MTLUSDT', 'NULSUSDT', 'STXUSDT', 'ADXUSDT', 'ETCUSDT', 'ZECUSDT', 'ASTUSDT', 'BATUSDT', 'DASHUSDT', 'POWRUSDT', 'REQUSDT', 'XMRUSDT', 'VIBUSDT', 'ENJUSDT', 'ARKUSDT', 'XRPUSDT', 'STORJUSDT', 'KMDUSDT', 'DATAUSDT', 'MANAUSDT', 'AMBUSDT', 'LSKUSDT', 'ADAUSDT', 'XLMUSDT', 'WAVESUSDT', 'ICXUSDT', 'ELFUSDT', 'RLCUSDT', 'PIVXUSDT', 'IOSTUSDT', 'STEEMUSDT', 'BLZUSDT', 'SYSUSDT', 'ONTUSDT', 'ZILUSDT', 'XEMUSDT', 'WANUSDT', 'LOOMUSDT', 'TUSDUSDT', 'ZENUSDT', 'THETAUSDT', 'IOTXUSDT', 'QKCUSDT', 'SCUSDT', 'KEYUSDT', 'DENTUSDT', 'IQUSDT', 'ARDRUSDT', 'HOTUSDT', 'VETUSDT', 'DOCKUSDT', 'VTHOUSDT', 'ONGUSDT', 'RVNUSDT', 'DCRUSDT', 'USDCUSDT', 'RENUSDT', 'FETUSDT', 'TFUELUSDT', 'CELRUSDT', 'MATICUSDT', 'ATOMUSDT', 'PHBUSDT', 'ONEUSDT', 'FTMUSDT', 'CHZUSDT', 'COSUSDT', 'ALGOUSDT', 'DOGEUSDT', 'DUSKUSDT', 'ANKRUSDT', 'WINUSDT', 'BANDUSDT', 'HBARUSDT', 'XTZUSDT', 'DGBUSDT', 'NKNUSDT', 'EURUSDT', 'KAVAUSDT', 'ARPAUSDT', 'CTXCUSDT', 'AERGOUSDT', 'BCHUSDT', 'TROYUSDT', 'VITEUSDT', 'FTTUSDT', 'OGNUSDT', 'DREPUSDT', 'WRXUSDT', 'LTOUSDT', 'MBLUSDT', 'COTIUSDT', 'HIVEUSDT', 'STPTUSDT', 'SOLUSDT', 'CTSIUSDT', 'CHRUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT', 'JSTUSDT', 'FIOUSDT', 'STMXUSDT', 'MDTUSDT', 'PNTUSDT', 'COMPUSDT', 'IRISUSDT', 'MKRUSDT', 'SXPUSDT', 'SNXUSDT', 'ETHUPUSDT', 'ETHDOWNUSDT', 'DOTUSDT', 'BNBUPUSDT', 'BNBDOWNUSDT', 'AVAUSDT', 'BALUSDT', 'YFIUSDT', 'ANTUSDT', 'CRVUSDT', 'SANDUSDT', 'OCEANUSDT', 'NMRUSDT', 'LUNAUSDT', 'IDEXUSDT', 'RSRUSDT', 'PAXGUSDT', 'WNXMUSDT', 'TRBUSDT', 'WBTCUSDT', 'KSMUSDT', 'SUSHIUSDT', 'DIAUSDT', 'BELUSDT', 'UMAUSDT', 'WINGUSDT', 'CREAMUSDT', 'UNIUSDT', 'OXTUSDT', 'SUNUSDT', 'AVAXUSDT', 'BURGERUSDT', 'BAKEUSDT', 'FLMUSDT', 'SCRTUSDT', 'XVSUSDT', 'CAKEUSDT', 'ALPHAUSDT', 'ORNUSDT', 'UTKUSDT', 'NEARUSDT', 'VIDTUSDT', 'AAVEUSDT', 'FILUSDT', 'INJUSDT', 'CTKUSDT', 'AUDIOUSDT', 'AXSUSDT', 'AKROUSDT', 'HARDUSDT', 'KP3RUSDT', 'SLPUSDT', 'STRAXUSDT', 'UNFIUSDT', 'CVPUSDT', 'FORUSDT', 'FRONTUSDT', 'ROSEUSDT', 'PROMUSDT', 'SKLUSDT', 'GLMUSDT', 'GHSTUSDT', 'DFUSDT', 'JUVUSDT', 'PSGUSDT', 'GRTUSDT', 'CELOUSDT', 'TWTUSDT', 'REEFUSDT', 'OGUSDT', 'ATMUSDT', 'ASRUSDT', '1INCHUSDT', 'RIFUSDT', 'TRUUSDT', 'DEXEUSDT', 'CKBUSDT', 'FIROUSDT', 'LITUSDT', 'PROSUSDT', 'SFPUSDT', 'FXSUSDT', 'DODOUSDT', 'UFTUSDT', 'ACMUSDT', 'PHAUSDT', 'BADGERUSDT', 'FISUSDT', 'OMUSDT', 'PONDUSDT', 'ALICEUSDT', 'DEGOUSDT', 'BIFIUSDT', 'LINAUSDT']
+coins = ['BTCUSDT', 'LTCUSDT', 'ETHUSDT', 'NEOUSDT', 'BNBUSDT', 'QTUMUSDT', 'EOSUSDT', 'SNTUSDT', 'BNTUSDT', 'GASUSDT', 'OAXUSDT', 'ZRXUSDT', 'OMGUSDT', 'LRCUSDT', 'TRXUSDT', 'FUNUSDT', 'KNCUSDT', 'XVGUSDT', 'IOTAUSDT', 'LINKUSDT', 'CVCUSDT', 'MTLUSDT', 'NULSUSDT', 'STXUSDT', 'ADXUSDT', 'ETCUSDT', 'ZECUSDT', 'ASTUSDT', 'BATUSDT', 'DASHUSDT', 'POWRUSDT', 'REQUSDT', 'XMRUSDT', 'VIBUSDT', 'ENJUSDT', 'ARKUSDT', 'XRPUSDT', 'STORJUSDT', 'KMDUSDT', 'DATAUSDT', 'MANAUSDT', 'AMBUSDT', 'LSKUSDT', 'ADAUSDT', 'XLMUSDT', 'WAVESUSDT', 'ICXUSDT', 'ELFUSDT', 'RLCUSDT', 'PIVXUSDT', 'IOSTUSDT', 'STEEMUSDT', 'BLZUSDT', 'SYSUSDT', 'ONTUSDT', 'ZILUSDT', 'XEMUSDT', 'WANUSDT', 'LOOMUSDT', 'TUSDUSDT', 'ZENUSDT', 'THETAUSDT', 'IOTXUSDT', 'QKCUSDT', 'SCUSDT', 'KEYUSDT', 'DENTUSDT', 'IQUSDT', 'ARDRUSDT', 'HOTUSDT', 'VETUSDT', 'DOCKUSDT', 'VTHOUSDT', 'ONGUSDT', 'RVNUSDT', 'DCRUSDT', 'USDCUSDT', 'RENUSDT', 'FETUSDT', 'TFUELUSDT', 'CELRUSDT', 'MATICUSDT', 'ATOMUSDT', 'PHBUSDT', 'ONEUSDT', 'FTMUSDT', 'CHZUSDT', 'COSUSDT', 'ALGOUSDT', 'DOGEUSDT', 'DUSKUSDT', 'ANKRUSDT', 'WINUSDT', 'BANDUSDT', 'HBARUSDT', 'XTZUSDT', 'DGBUSDT', 'NKNUSDT', 'EURUSDT', 'KAVAUSDT', 'ARPAUSDT', 'CTXCUSDT', 'AERGOUSDT', 'BCHUSDT', 'TROYUSDT', 'VITEUSDT', 'FTTUSDT', 'OGNUSDT', 'DREPUSDT', 'WRXUSDT', 'LTOUSDT', 'MBLUSDT', 'COTIUSDT', 'HIVEUSDT', 'STPTUSDT', 'SOLUSDT', 'CTSIUSDT', 'CHRUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT', 'JSTUSDT', 'FIOUSDT', 'STMXUSDT', 'MDTUSDT', 'PNTUSDT', 'COMPUSDT', 'IRISUSDT', 'MKRUSDT', 'SXPUSDT', 'SNXUSDT', 'ETHUPUSDT', 'ETHDOWNUSDT', 'DOTUSDT', 'BNBUPUSDT', 'BNBDOWNUSDT', 'AVAUSDT', 'BALUSDT', 'YFIUSDT', 'ANTUSDT', 'CRVUSDT', 'SANDUSDT', 'OCEANUSDT', 'NMRUSDT', 'LUNAUSDT', 'IDEXUSDT', 'RSRUSDT', 'PAXGUSDT']
 makeWhiteList(coins)
 # whiteList = ['BTCUSDT', 'LTCUSDT', 'ETHUSDT', 'NEOUSDT', 'BNBUSDT', 'QTUMUSDT']
 for coin in whiteList:
