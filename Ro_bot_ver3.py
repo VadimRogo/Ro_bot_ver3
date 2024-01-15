@@ -339,7 +339,7 @@ def mainCycle(passescoins):
 startTelebot()
 for i in range(10):
     findBestCoins()
-    mainCycle()
+    mainCycle(passescoins)
 
 
 
