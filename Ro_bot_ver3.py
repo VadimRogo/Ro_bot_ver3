@@ -135,6 +135,7 @@ def update_dataframe(dataframe):
     dataframe['ADX'] = ADX(dataframe['High'], dataframe['Low'], dataframe['Close'], timeperiod = 12)
     
 def make_obj_coin(coin, dataframe):
+    global passescoins
     x = passcoin(coin, dataframe)
     passescoins.append(x)
 
@@ -314,6 +315,7 @@ def findBestCoins():
         try:
             get_data(passcoin.coin)
         except Exception as E:
+            print(E)
             print(f'Error with coin {passcoin.coin}')        
     
 
