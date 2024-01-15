@@ -34,6 +34,10 @@ def sendCantBuy(symbol):
     bot.send_message(id, f"We can't buy coin {symbol}")
 def sendWhiteList(whiteList):
     bot.send_message(id, f"White list is {whiteList}")
+def sendTestInfo(coin):
+    bot.send_message(id, f'We in buy phase in coin {coin}')
+
+
 
 api_secret = 'vx7NmftzHka1U9gjfLcCG2Teg6XeXYQFnpFPmTKw0ncdGs8b1jlwxGZyrrMivv4A'
 api_key = 'JVp4ILHRVsxK8frz3ge1ZGeUqnB9D8ZTt6V6BNktqt9V2qXC4LZX3roRpDL14kIE'
@@ -84,7 +88,6 @@ def get_trend_data(coin):
     result['time'] = pd.to_datetime(result['time'], unit='ms')
     return result
 
-    
 def get_history_data(coin):
     global result
     client = Client(api_key, api_secret)
@@ -107,7 +110,7 @@ def get_history_data(coin):
 def get_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "1 minute ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "2 minute ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
@@ -162,10 +165,8 @@ def buy(symbol, price):
     try:
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         if float(balance) > partOfBalance:
-            print('test')
             precision = get_precision(symbol)
             x = checkPrecision(price, precision)
-            print('testCheck')
             if x > 0:
                 qty = partOfBalance / x
                 qty = round(qty, precision)
@@ -253,10 +254,11 @@ def Strategy(passcoin):
     adx = float(passcoin.dataframe['ADX'].iloc[[-1]].iloc[0])
     smaK = float(result['SMA_50'].iloc[[-1]].iloc[0])
     sma = float(result['SMA_100'].iloc[[-1]].iloc[0])
-    percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 10
+    percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 15
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     # oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
-    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 20 and rsi <= 35 and adx > adxmo:
+    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 10 and rsi <= 35 and adx > adxmo:
+        sendTestInfo(coin)
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
