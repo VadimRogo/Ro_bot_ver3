@@ -18,7 +18,7 @@ def startTelebot():
     
 
 def sendStatistic(statistic, cycle):
-    bot.send_message(id, f'Hello, statistic is {str(statistic)}, num of tickets is {str(len(tickets))}, cycle num {cycle}', parse_mode='Markdown')
+    bot.send_message(id, f' Statistic is {str(statistic)}, num of tickets is {str(len(tickets))}, cycle num {cycle}', parse_mode='Markdown')
 def sendLose(symbol):
     bot.send_message(id, f'We need to sell this coin {symbol}')
 # def sendSignalToBuy(coin):
@@ -34,8 +34,9 @@ def sendCantBuy(symbol):
     bot.send_message(id, f"We can't buy coin {symbol}")
 def sendWhiteList(whiteList):
     bot.send_message(id, f"White list is {whiteList}")
-def sendTestInfo(coin):
-    bot.send_message(id, f'We in buy phase in coin {coin}')
+def sendPhase(coin):
+    bot.send_message(id, f"All fine, we in buy phase {coin}")
+
 
 api_secret = 'vx7NmftzHka1U9gjfLcCG2Teg6XeXYQFnpFPmTKw0ncdGs8b1jlwxGZyrrMivv4A'
 api_key = 'JVp4ILHRVsxK8frz3ge1ZGeUqnB9D8ZTt6V6BNktqt9V2qXC4LZX3roRpDL14kIE'
@@ -77,19 +78,10 @@ class ticket:
         self.sold = False,
         self.precision = precision,
 
-def get_trend_data(coin):
-    client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1HOUR, "6 hours ago UTC")
-    result = pd.DataFrame(klines)
-    result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
-    result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
-    result['time'] = pd.to_datetime(result['time'], unit='ms')
-    return result
-
 def get_history_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "5 hours ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "12 hours ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
@@ -108,7 +100,7 @@ def get_history_data(coin):
 def get_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "2 minute ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "1 minute ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
@@ -135,7 +127,6 @@ def update_dataframe(dataframe):
     dataframe['ADX'] = ADX(dataframe['High'], dataframe['Low'], dataframe['Close'], timeperiod = 12)
     
 def make_obj_coin(coin, dataframe):
-    global passescoins
     x = passcoin(coin, dataframe)
     passescoins.append(x)
 
@@ -164,8 +155,10 @@ def buy(symbol, price):
     try:
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         if float(balance) > partOfBalance:
+            print('test')
             precision = get_precision(symbol)
             x = checkPrecision(price, precision)
+            print('testCheck')
             if x > 0:
                 qty = partOfBalance / x
                 qty = round(qty, precision)
@@ -244,7 +237,7 @@ def errorSell(ticket, quantity):
                     break
 
 def Strategy(passcoin):
-    global balance
+    global balances
     coin = passcoin.coin
     price = float(passcoin.dataframe['Close'].iloc[[-1]].iloc[0])
     percent = price / 100
@@ -257,7 +250,7 @@ def Strategy(passcoin):
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     # oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
     if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 10 and rsi <= 35 and adx > adxmo:
-        sendTestInfo(coin)
+        sendPhase(coin)
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
@@ -291,57 +284,42 @@ def makeWhiteList(coins):
     whiteList = []
     for coin in coins:
         try:
-            result = get_trend_data(coin)
+            result = get_history_data(coin)
             openPrice = float(result['Close'].iloc[[0]].iloc[0])
             closePrice = float(result['Close'].iloc[[-1]].iloc[0])
             if closePrice > openPrice:
                 whiteList.append(coin)
-                print(coin)
         except Exception as E:
             continue
     
 
 
-def findBestCoins():
-    global passescoins
-    passescoins = []
-    coins = ['BTCUSDT', 'LTCUSDT', 'ETHUSDT', 'NEOUSDT', 'BNBUSDT', 'QTUMUSDT', 'EOSUSDT', 'SNTUSDT', 'BNTUSDT', 'GASUSDT', 'OAXUSDT', 'ZRXUSDT', 'OMGUSDT', 'LRCUSDT', 'TRXUSDT', 'FUNUSDT', 'KNCUSDT', 'XVGUSDT', 'IOTAUSDT', 'LINKUSDT', 'CVCUSDT', 'MTLUSDT', 'NULSUSDT', 'STXUSDT', 'ADXUSDT', 'ETCUSDT', 'ZECUSDT', 'ASTUSDT', 'BATUSDT', 'DASHUSDT', 'POWRUSDT', 'REQUSDT', 'XMRUSDT', 'VIBUSDT', 'ENJUSDT', 'ARKUSDT', 'XRPUSDT', 'STORJUSDT', 'KMDUSDT', 'DATAUSDT', 'MANAUSDT', 'AMBUSDT', 'LSKUSDT', 'ADAUSDT', 'XLMUSDT', 'WAVESUSDT', 'ICXUSDT', 'ELFUSDT', 'RLCUSDT', 'PIVXUSDT', 'IOSTUSDT', 'STEEMUSDT', 'BLZUSDT', 'SYSUSDT', 'ONTUSDT', 'ZILUSDT', 'XEMUSDT', 'WANUSDT', 'LOOMUSDT', 'TUSDUSDT', 'ZENUSDT', 'THETAUSDT', 'IOTXUSDT', 'QKCUSDT', 'SCUSDT', 'KEYUSDT', 'DENTUSDT', 'IQUSDT', 'ARDRUSDT', 'HOTUSDT', 'VETUSDT', 'DOCKUSDT', 'VTHOUSDT', 'ONGUSDT', 'RVNUSDT', 'DCRUSDT', 'USDCUSDT', 'RENUSDT', 'FETUSDT', 'TFUELUSDT', 'CELRUSDT', 'MATICUSDT', 'ATOMUSDT', 'PHBUSDT', 'ONEUSDT', 'FTMUSDT', 'CHZUSDT', 'COSUSDT', 'ALGOUSDT', 'DOGEUSDT', 'DUSKUSDT', 'ANKRUSDT', 'WINUSDT', 'BANDUSDT', 'HBARUSDT', 'XTZUSDT', 'DGBUSDT', 'NKNUSDT', 'EURUSDT', 'KAVAUSDT', 'ARPAUSDT', 'CTXCUSDT', 'AERGOUSDT', 'BCHUSDT', 'TROYUSDT', 'VITEUSDT', 'FTTUSDT', 'OGNUSDT', 'DREPUSDT', 'WRXUSDT', 'LTOUSDT', 'MBLUSDT', 'COTIUSDT', 'HIVEUSDT', 'STPTUSDT', 'SOLUSDT', 'CTSIUSDT', 'CHRUSDT']
-    makeWhiteList(coins)
-    sendWhiteList(whiteList)
-    for coin in whiteList:
-        get_history_data(coin)
-        
+passescoins = []
+coins = ['BTCUSDT', 'LTCUSDT', 'ETHUSDT', 'NEOUSDT', 'BNBUSDT', 'QTUMUSDT', 'EOSUSDT', 'SNTUSDT', 'BNTUSDT', 'GASUSDT', 'OAXUSDT', 'ZRXUSDT', 'OMGUSDT', 'LRCUSDT', 'TRXUSDT', 'FUNUSDT', 'KNCUSDT', 'XVGUSDT', 'IOTAUSDT', 'LINKUSDT', 'CVCUSDT', 'MTLUSDT', 'NULSUSDT', 'STXUSDT', 'ADXUSDT', 'ETCUSDT', 'ZECUSDT', 'ASTUSDT', 'BATUSDT', 'DASHUSDT', 'POWRUSDT', 'REQUSDT', 'XMRUSDT', 'VIBUSDT', 'ENJUSDT', 'ARKUSDT', 'XRPUSDT', 'STORJUSDT', 'KMDUSDT', 'DATAUSDT', 'MANAUSDT', 'AMBUSDT', 'LSKUSDT', 'ADAUSDT', 'XLMUSDT', 'WAVESUSDT', 'ICXUSDT', 'ELFUSDT', 'RLCUSDT', 'PIVXUSDT', 'IOSTUSDT', 'STEEMUSDT', 'BLZUSDT', 'SYSUSDT', 'ONTUSDT', 'ZILUSDT', 'XEMUSDT', 'WANUSDT', 'LOOMUSDT', 'TUSDUSDT', 'ZENUSDT', 'THETAUSDT', 'IOTXUSDT', 'QKCUSDT', 'SCUSDT', 'KEYUSDT', 'DENTUSDT', 'IQUSDT', 'ARDRUSDT', 'HOTUSDT', 'VETUSDT', 'DOCKUSDT', 'VTHOUSDT', 'ONGUSDT', 'RVNUSDT', 'DCRUSDT', 'USDCUSDT', 'RENUSDT', 'FETUSDT', 'TFUELUSDT', 'CELRUSDT', 'MATICUSDT', 'ATOMUSDT', 'PHBUSDT', 'ONEUSDT', 'FTMUSDT', 'CHZUSDT', 'COSUSDT', 'ALGOUSDT', 'DOGEUSDT', 'DUSKUSDT', 'ANKRUSDT', 'WINUSDT', 'BANDUSDT', 'HBARUSDT', 'XTZUSDT', 'DGBUSDT', 'NKNUSDT', 'EURUSDT', 'KAVAUSDT', 'ARPAUSDT', 'CTXCUSDT', 'AERGOUSDT', 'BCHUSDT', 'TROYUSDT', 'VITEUSDT', 'FTTUSDT', 'OGNUSDT', 'DREPUSDT', 'WRXUSDT', 'LTOUSDT', 'MBLUSDT', 'COTIUSDT', 'HIVEUSDT', 'STPTUSDT', 'SOLUSDT', 'CTSIUSDT', 'CHRUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT', 'JSTUSDT', 'FIOUSDT', 'STMXUSDT', 'MDTUSDT', 'PNTUSDT', 'COMPUSDT', 'IRISUSDT', 'MKRUSDT', 'SXPUSDT', 'SNXUSDT', 'ETHUPUSDT', 'ETHDOWNUSDT', 'DOTUSDT', 'BNBUPUSDT', 'BNBDOWNUSDT', 'AVAUSDT', 'BALUSDT', 'YFIUSDT', 'ANTUSDT', 'CRVUSDT', 'SANDUSDT', 'OCEANUSDT', 'NMRUSDT', 'LUNAUSDT', 'IDEXUSDT', 'RSRUSDT', 'PAXGUSDT', 'WNXMUSDT', 'TRBUSDT', 'WBTCUSDT', 'KSMUSDT', 'SUSHIUSDT', 'DIAUSDT', 'BELUSDT', 'UMAUSDT', 'WINGUSDT', 'CREAMUSDT', 'UNIUSDT', 'OXTUSDT', 'SUNUSDT', 'AVAXUSDT', 'BURGERUSDT', 'BAKEUSDT', 'FLMUSDT', 'SCRTUSDT', 'XVSUSDT', 'CAKEUSDT', 'ALPHAUSDT', 'ORNUSDT', 'UTKUSDT', 'NEARUSDT', 'VIDTUSDT', 'AAVEUSDT', 'FILUSDT', 'INJUSDT', 'CTKUSDT', 'AUDIOUSDT', 'AXSUSDT', 'AKROUSDT', 'HARDUSDT', 'KP3RUSDT', 'SLPUSDT', 'STRAXUSDT', 'UNFIUSDT', 'CVPUSDT', 'FORUSDT', 'FRONTUSDT', 'ROSEUSDT', 'PROMUSDT', 'SKLUSDT', 'GLMUSDT', 'GHSTUSDT', 'DFUSDT', 'JUVUSDT', 'PSGUSDT', 'GRTUSDT', 'CELOUSDT', 'TWTUSDT', 'REEFUSDT', 'OGUSDT', 'ATMUSDT', 'ASRUSDT', '1INCHUSDT', 'RIFUSDT', 'TRUUSDT', 'DEXEUSDT', 'CKBUSDT', 'FIROUSDT', 'LITUSDT', 'PROSUSDT', 'SFPUSDT', 'FXSUSDT', 'DODOUSDT', 'UFTUSDT', 'ACMUSDT', 'PHAUSDT', 'BADGERUSDT', 'FISUSDT', 'OMUSDT', 'PONDUSDT', 'ALICEUSDT', 'DEGOUSDT', 'BIFIUSDT', 'LINAUSDT']
+makeWhiteList(coins)
+for coin in whiteList:
+    get_history_data(coin)
+    
+for passcoin in passescoins:
+    try:
+        get_data(passcoin.coin)
+    except Exception as E:
+        print(f'Error with coin {passcoin.coin}')        
+startTelebot()
+sendWhiteList(whiteList)
+OnPosition = False
+for i in range(600):
     for passcoin in passescoins:
         try:
             get_data(passcoin.coin)
+            update_dataframe(passcoin.dataframe)
+            Strategy(passcoin)
         except Exception as E:
             print(E)
-            print(f'Error with coin {passcoin.coin}')        
-    
-
-def mainCycle(passescoins):
-    
-    for i in range(600):
-        for passcoin in passescoins:
-            try:
-                get_data(passcoin.coin)
-                update_dataframe(passcoin.dataframe)
-                Strategy(passcoin)
-            except Exception as E:
-                print(E)
-                passescoins.remove(passcoin)
-                print(f'Coin removed - {passcoin.coin}')
-                continue
-        if i % 60 == 0:
-            sendMessage()
-            makeStatistic(i)
-        print('Cycle ', i)
-        time.sleep(60)
-
-startTelebot()
-for i in range(10):
-    findBestCoins()
-    mainCycle(passescoins)
-
-
-
+            passescoins.remove(passcoin)
+            continue
+    if i % 30 == 0:
+        sendMessage()
+        makeStatistic(i)
+    print('Cycle ', i)
+    time.sleep(60)
