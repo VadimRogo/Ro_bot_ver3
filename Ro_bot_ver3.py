@@ -36,7 +36,8 @@ def sendWhiteList(whiteList):
     bot.send_message(id, f"White list is {whiteList}")
 def sendPhase(coin):
     bot.send_message(id, f"All fine, we in buy phase {coin}")
-
+def sendPhaseEnd(coin):
+    bot.send_message(id, f"End of waiting of phase {coin}")
 
 api_secret = 'vx7NmftzHka1U9gjfLcCG2Teg6XeXYQFnpFPmTKw0ncdGs8b1jlwxGZyrrMivv4A'
 api_key = 'JVp4ILHRVsxK8frz3ge1ZGeUqnB9D8ZTt6V6BNktqt9V2qXC4LZX3roRpDL14kIE'
@@ -254,6 +255,7 @@ def Strategy(passcoin):
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
+        sendPhaseEnd(coin)
     for ticket in tickets:
         if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit < price and ticket.sold == False:
             takeprofitMove(ticket, percent)
@@ -316,8 +318,6 @@ for i in range(600):
             Strategy(passcoin)
         except Exception as E:
             print(E)
-            print(f'Coin removed {passcoin.coin}')
-            passescoins.remove(passcoin)
             continue
     if i % 30 == 0:
         sendMessage()
