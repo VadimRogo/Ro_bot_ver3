@@ -253,7 +253,6 @@ def Strategy(passcoin):
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
-        sendPhaseEnd(coin)
     for ticket in tickets:
         if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit < price and ticket.sold == False:
             takeprofitMove(ticket, percent)
