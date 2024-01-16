@@ -5,6 +5,7 @@ import numpy as np
 from talib import MA_Type
 from talib import ADX, RSI, MACD, STOCH
 import datetime
+from datetime import datetime
 import matplotlib.pyplot as plt
 import time
 import math
@@ -50,7 +51,7 @@ tickers = pd.DataFrame(tickers)
 
 info = client.futures_exchange_info()
 
-partOfBalance = 11
+partOfBalance = 12
 
 balances, tickets = [], []
 balance = float(client.get_asset_balance(asset='USDT')['free'])
@@ -69,7 +70,7 @@ class passcoin:
 
 class ticket:
     def __init__(self, symbol, price, qty, precision):
-        now = now = datetime.now()
+        now = datetime.now()
         self.symbol = symbol,
         self.price = price,
         self.takeprofit = price + price / 100,
@@ -156,10 +157,8 @@ def buy(symbol, price):
     try:
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         if float(balance) > partOfBalance:
-            print('test')
             precision = get_precision(symbol)
             x = checkPrecision(price, precision)
-            print('testCheck')
             if x > 0:
                 qty = partOfBalance / x
                 qty = round(qty, precision)
@@ -251,7 +250,6 @@ def Strategy(passcoin):
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     # oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
     if smaK - price >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 10 and rsi <= 35 and adx > adxmo:
-        sendPhase(coin)
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
