@@ -81,7 +81,7 @@ class ticket:
 def get_history_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "12 hours ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "5 hours ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     result = result.drop(['Taker buy', 'Number of trades', 'Quote', 'Close time', 'Ignore', 'Taker buy quote'], axis = 1)
@@ -244,12 +244,12 @@ def Strategy(passcoin):
     rsi = float(passcoin.dataframe['RSI'].iloc[[-1]].iloc[0])
     macdhist = float(passcoin.dataframe['Macdhist'].iloc[[-1]].iloc[0])
     adx = float(passcoin.dataframe['ADX'].iloc[[-1]].iloc[0])
-    smaK = float(result['SMA_50'].iloc[[-1]].iloc[0])
-    sma = float(result['SMA_100'].iloc[[-1]].iloc[0])
-    percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 15
+    smaK = float(passcoin.dataframe['SMA_50'].iloc[[-1]].iloc[0])
+    sma = float(passcoin.dataframe['SMA_100'].iloc[[-1]].iloc[0])
+    percentMacd = float(passcoin.dataframe['Macdhist'].max()) / 100 * 10
     adxmo = float(passcoin.dataframe['ADX'].iloc[[-2]].iloc[0])
     # oldmacd = float(result['Macdhist'].iloc[[-5]].iloc[0])
-    if sma - smaK >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 10 and rsi <= 35 and adx > adxmo:
+    if smaK - price >= 0 and macdhist >= -percentMacd and macdhist <= percentMacd and rsi >= 10 and rsi <= 35 and adx > adxmo:
         sendPhase(coin)
         buy(passcoin.coin, price)
         balance = float(client.get_asset_balance(asset='USDT')['free'])
@@ -316,6 +316,7 @@ for i in range(600):
             Strategy(passcoin)
         except Exception as E:
             print(E)
+            print(f'Coin removed {passcoin.coin}')
             passescoins.remove(passcoin)
             continue
     if i % 30 == 0:
