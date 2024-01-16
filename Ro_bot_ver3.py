@@ -273,9 +273,10 @@ def Strategy(passcoin):
 def makeStatistic(i):
     global counterProfit
     for ticket in tickets:
-        if ticket.profit == True:
-            counterProfit += 1
-        
+        if hasattr(ord, 'profit'):
+            if ticket.profit == True:
+                counterProfit += 1
+            
     Statistic = len(tickets) / counterProfit
     sendStatistic(Statistic, i)
 
