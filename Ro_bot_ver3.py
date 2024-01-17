@@ -256,19 +256,14 @@ def Strategy(passcoin):
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
-        print(coin, ticket.takeprofit, price, ticket.stoploss)
-        if ticket.symbol == coin and ticket.takeprofit < price and ticket.sold == False:
-            sendSell(ticket.symbol)
+        if ticket.symbol == coin and ticket.takeprofit[0] < price and ticket.sold == False:
             ticket.profit = True
             sell(ticket)
-            sendSell(ticket.symbol)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
-        elif ticket.symbol == coin and ticket.stoploss > price and ticket.sold == False:
-            sendSell(ticket.symbol)
+        elif ticket.symbol == coin and ticket.stoploss[0] > price and ticket.sold == False:
             ticket.profit = False
             sell(ticket)
-            sendSell(ticket.symbol)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
 
