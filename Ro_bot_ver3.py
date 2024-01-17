@@ -35,11 +35,10 @@ def sendCantBuy(symbol):
     bot.send_message(id, f"We can't buy coin {symbol}")
 def sendWhiteList(whiteList):
     bot.send_message(id, f"White list is {whiteList}")
-def sendPhase(coin):
-    bot.send_message(id, f"All fine, we in buy phase {coin}")
-def sendPhaseEnd(coin):
-    bot.send_message(id, f"End of waiting of phase {coin}")
-
+def sendSellError(coin):
+    bot.send_message(id, f"Error in sell in {coin}")
+def sendSell(coin):
+    bot.send_message(id, f'We in a sell stage {coin}')
 api_secret = 'l8yABl6afXbNUhKZRowpnnenT8Aef0P4VwdtLg3tJjPDF5ucuKXEQGunZdZhAodd'
 api_key = 'y9VrYUhVwnnHrymwAvlPS3MbqpsNJBK1pLRYy71qudlJadJTruNnk5APTOnVp0zu'
 orders = []
@@ -193,11 +192,12 @@ def sell(ticket):
             sendLose(ticket.symbol)
             ticket.sold = True
     except Exception as E:
+        sendSellError(ticket.symbol)
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol.replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price
         if balance_usdt > 10:
-            quantity = math.floor(balance_coin * (10 ** ticket.precision) * 0.999) / (10 ** ticket.precision)
-            qunatity = round(ticket.qty, ticket.precision)
+            # quantity = math.floor(balance_coin * (10 ** ticket.precision) * 0.999) / (10 ** ticket.precision)
+            quantity = round(ticket.qty, ticket.precision)
             errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
@@ -257,13 +257,17 @@ def Strategy(passcoin):
             stoplossMove(ticket, percent)
     for ticket in tickets:
         if ticket.symbol == coin and ticket.takeprofit < price and ticket.sold == False:
+            sendSell(ticket.symbol)
             ticket.profit = True
             sell(ticket)
+            sendSell(ticket.symbol)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
         elif ticket.symbol == coin and ticket.stoploss > price and ticket.sold == False:
+            sendSell(ticket.symbol)
             ticket.profit = False
             sell(ticket)
+            sendSell(ticket.symbol)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
 
