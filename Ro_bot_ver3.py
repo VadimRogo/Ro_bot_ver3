@@ -85,7 +85,7 @@ def get_history_data(coin):
     klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "5 hours ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
-    result['time'] = pd.to_datetime(result['time'], unit='ms')
+    # result['time'] = pd.to_datetime(result['time'], unit='ms')
     result['SMA_50'] = talib.SMA(result['Close'])
     result['SMA_100'] = talib.SMA(result['Close'], 100)
     result['SMA_hist'] = result['SMA_50'] - result['SMA_100']
@@ -103,7 +103,7 @@ def get_data(coin):
     klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "1 minute ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
-    result['time'] = pd.to_datetime(result['time'], unit='ms')
+    # result['time'] = pd.to_datetime(result['time'], unit='ms')
     result['SMA_50'] = talib.SMA(result['Close'])
     result['SMA_100'] = talib.SMA(result['Close'], 100)
     result['SMA_hist'] = result['SMA_50'] - result['SMA_100']
