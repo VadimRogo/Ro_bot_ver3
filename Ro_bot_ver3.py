@@ -39,6 +39,9 @@ def sendSellError(coin):
     bot.send_message(id, f"Error in sell in {coin}")
 def sendSell(coin):
     bot.send_message(id, f'We in a sell stage {coin}')
+def sendTicket(ticket):
+    bot.send_message(id, f'Coin is {ticket.symbol} price{ticket.price} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
+
 api_secret = 'l8yABl6afXbNUhKZRowpnnenT8Aef0P4VwdtLg3tJjPDF5ucuKXEQGunZdZhAodd'
 api_key = 'y9VrYUhVwnnHrymwAvlPS3MbqpsNJBK1pLRYy71qudlJadJTruNnk5APTOnVp0zu'
 orders = []
@@ -167,7 +170,9 @@ def buy(symbol, price):
                 )
                 print(f'Bought {symbol}')
                 sendBought(symbol)
+                
                 x = ticket(symbol, price, qty, precision)
+                sendTicket(x)
                 tickets.append(x)
     except Exception as E:
         print(E)    
