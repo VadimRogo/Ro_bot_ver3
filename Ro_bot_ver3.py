@@ -40,7 +40,7 @@ def sendSellError(coin):
 def sendSell(coin):
     bot.send_message(id, f'We in a sell stage {coin}')
 def sendTicket(ticket):
-    bot.send_message(id, f'Coin is {ticket.symbol} price{ticket.price} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
+    bot.send_message(id, f'Coin is {ticket.symbol[0]} price{ticket.price[0]} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
 
 api_secret = 'l8yABl6afXbNUhKZRowpnnenT8Aef0P4VwdtLg3tJjPDF5ucuKXEQGunZdZhAodd'
 api_key = 'y9VrYUhVwnnHrymwAvlPS3MbqpsNJBK1pLRYy71qudlJadJTruNnk5APTOnVp0zu'
@@ -257,19 +257,19 @@ def Strategy(passcoin):
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     for ticket in tickets:
-        if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold == False:
+        if ticket.symbol[0] == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold[0] == False:
             print('Ticket moving')
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
-        if ticket.symbol == coin:
-            print(ticket.symbol, ticket.takeprofit[0], price, ticket.stoploss[0])
-        if ticket.symbol == coin and ticket.takeprofit[0] < price and ticket.sold == False:
+        if ticket.symbol[0] == coin:
+            print(ticket.symbol[0], ticket.takeprofit[0], price, ticket.stoploss[0])
+        if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
             ticket.profit = True
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
-        elif ticket.symbol == coin and ticket.stoploss[0] > price and ticket.sold == False:
+        elif ticket.symbol[0] == coin and ticket.stoploss[0] > price and ticket.sold[0] == False:
             ticket.profit = False
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
