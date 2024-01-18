@@ -258,6 +258,7 @@ def Strategy(passcoin):
         balances.append(balance)
     for ticket in tickets:
         if ticket.symbol[0] == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold[0] == False:
+            print(f"move coin is {ticket.symbol[0]}")
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
