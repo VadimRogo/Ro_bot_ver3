@@ -183,7 +183,7 @@ def sell(ticket):
     try:
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol.replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price
-        if balance_usdt > 10:
+        if balance_usdt > 6:
             order = client.order_market_sell(
                 symbol=ticket.symbol,
                 quantity=ticket.qty
@@ -257,10 +257,12 @@ def Strategy(passcoin):
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     for ticket in tickets:
-        if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit < price and ticket.sold == False:
+        if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold == False:
+            print('Ticket moving')
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
+        print(ticket.symbol, ticket.takeprofit[0], price, ticket.stoploss[0])
         if ticket.symbol == coin and ticket.takeprofit[0] < price and ticket.sold == False:
             ticket.profit = True
             sell(ticket)
