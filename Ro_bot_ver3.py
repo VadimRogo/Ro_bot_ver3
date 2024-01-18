@@ -61,9 +61,9 @@ counterProfit = 1
 counterLoss = 1
 
 def takeprofitMove(ord, percent):
-    ord.takeprofit = ord.takeprofit + percent * 0.7
+    ord.takeprofit = float(ord.takeprofit[0] + percent * 0.7)
 def stoplossMove(ord, percent):
-    ord.stoploss = ord.stoploss + percent * 0.5
+    ord.stoploss = float(ord.stoploss[0] + percent * 0.5)
 
 class passcoin:
     def __init__(self, coin, dataframe):
@@ -73,14 +73,14 @@ class passcoin:
 class ticket:
     def __init__(self, symbol, price, qty, precision):
         now = datetime.now()
-        self.symbol = symbol,
-        self.price = price,
-        self.takeprofit = price + price / 100 * 0.5,
-        self.stoploss = price - price / 100 * 0.5,
-        self.qty = qty,
+        self.symbol = str(symbol),
+        self.price = float(price),
+        self.takeprofit = float(price + price / 100 * 0.5),
+        self.stoploss = float(price - price / 100 * 0.5),
+        self.qty = float(qty),
         self.time = now,
-        self.sold = False,
-        self.precision = precision,
+        self.sold = bool(False),
+        self.precision = float(precision),
 
 def get_history_data(coin):
     global result
@@ -257,19 +257,19 @@ def Strategy(passcoin):
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     for ticket in tickets:
-        if ticket.symbol[0] == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold[0] == False:
-            print(f"move coin is {ticket.symbol[0]}")
+        if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit < price and ticket.sold == False:
+            print(f"move coin is {ticket.symbol}")
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
-        if ticket.symbol[0] == coin:
-            print(f'symbol is {ticket.symbol[0]} takeprofit is {ticket.takeprofit[0]} price is {price} stoploss is {ticket.stoploss[0]}, sold is {ticket.sold[0]}')
-        if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
+        if ticket.symbol == coin:
+            print(f'symbol is {ticket.symbol} takeprofit is {ticket.takeprofit} price is {price} stoploss is {ticket.stoploss}, sold is {ticket.sold}')
+        if ticket.symbol == coin and ticket.takeprofit < price and ticket.sold == False:
             ticket.profit = True
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
-        elif ticket.symbol[0] == coin and ticket.stoploss[0] > price and ticket.sold[0] == False:
+        elif ticket.symbol == coin and ticket.stoploss > price and ticket.sold == False:
             ticket.profit = False
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
