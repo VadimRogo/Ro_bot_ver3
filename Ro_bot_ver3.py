@@ -73,14 +73,14 @@ class passcoin:
 class ticket:
     def __init__(self, symbol, price, qty, precision):
         now = datetime.now()
-        self.symbol = str(symbol),
-        self.price = float(price),
-        self.takeprofit = float(price + price / 100 * 0.5),
-        self.stoploss = float(price - price / 100 * 0.5),
-        self.qty = float(qty),
+        self.symbol = symbol,
+        self.price = price,
+        self.takeprofit = price + price / 100 * 0.5,
+        self.stoploss = price - price / 100 * 0.5,
+        self.qty = qty,
         self.time = now,
-        self.sold = bool(False),
-        self.precision = float(precision),
+        self.sold = False,
+        self.precision = precision,
 
 def get_history_data(coin):
     global result
@@ -181,36 +181,36 @@ def buy(symbol, price):
 
 def sell(ticket):
     try:
-        balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol.replace('USDT', '')}")['free'])
-        balance_usdt = balance_coin * ticket.price
+        balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
+        balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 6:
             order = client.order_market_sell(
-                symbol=ticket.symbol,
-                quantity=ticket.qty
+                symbol=ticket.symbol[0],
+                quantity=ticket.qty[0]
                 )
-            print('Sold ', ticket.symbol)
-            sendSold(ticket.symbol)
+            print('Sold ', ticket.symbol[0])
+            sendSold(ticket.symbol[0])
             ticket.sold = True 
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
         else:
-            sendLose(ticket.symbol)
+            sendLose(ticket.symbol[0])
             ticket.sold = True
     except Exception as E:
-        sendSellError(ticket.symbol)
-        balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol.replace('USDT', '')}")['free'])
-        balance_usdt = balance_coin * ticket.price
+        sendSellError(ticket.symbol[0])
+        balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
+        balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 10:
             # quantity = math.floor(balance_coin * (10 ** ticket.precision) * 0.999) / (10 ** ticket.precision)
-            quantity = round(ticket.qty, ticket.precision)
-            errorSell(ticket, quantity)
+            quantity = round(ticket.qty[0], ticket.precision[0])
+            errorSell(ticket[0], quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
 
 def errorSell(ticket, quantity):
     try:
         order = client.order_market_sell(
-            symbol=ticket.symbol,
+            symbol=ticket.symbol[0],
             quantity=quantity
             )
         print('Sold before error', ticket.symbol)
@@ -218,15 +218,15 @@ def errorSell(ticket, quantity):
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     except Exception as E:
-        print(ticket.symbol)
+        print(ticket.symbol[0])
         print("Okey it doesn't work")
         counter = 0
         while True:
             try:
-                quantity = math.floor(quantity * (10 ** ticket.precision) * 0.99) / (10 ** ticket.precision)
-                quantity = round(ticket.qty, ticket.precision)
+                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.99) / (10 ** ticket.precision[0])
+                quantity = round(ticket.qty[0], ticket.precision[0])
                 order = client.order_market_sell(
-                    symbol=ticket.symbol,
+                    symbol=ticket.symbol[0],
                     quantity=quantity
                 )
                 print('sold before error error')
@@ -235,7 +235,7 @@ def errorSell(ticket, quantity):
                 counter += 1
                 if counter == 5:
                     print('We lose all')
-                    sendLose(ticket.symbol)
+                    sendLose(ticket.symbol[0])
                     ticket.sold = True
                     break
 
@@ -257,19 +257,19 @@ def Strategy(passcoin):
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     for ticket in tickets:
-        if ticket.symbol == coin and sma - smaK >= 0 and ticket.takeprofit < price and ticket.sold == False:
-            print(f"move coin is {ticket.symbol}")
+        if ticket.symbol[0] == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold[0] == False:
+            print(f"move coin is {ticket.symbol[0]}")
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
-        if ticket.symbol == coin:
-            print(f'symbol is {ticket.symbol} takeprofit is {ticket.takeprofit} price is {price} stoploss is {ticket.stoploss}, sold is {ticket.sold}')
-        if ticket.symbol == coin and ticket.takeprofit < price and ticket.sold == False:
+        if ticket.symbol[0] == coin:
+            print(f'symbol is {ticket.symbol[0]} takeprofit is {ticket.takeprofit[0]} price is {price} stoploss is {ticket.stoploss[0]}, sold is {ticket.sold[0]}')
+        if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
             ticket.profit = True
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
-        elif ticket.symbol == coin and ticket.stoploss > price and ticket.sold == False:
+        elif ticket.symbol[0] == coin and ticket.stoploss[0] > price and ticket.sold[0] == False:
             ticket.profit = False
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
@@ -293,7 +293,7 @@ def makeWhiteList(coins):
             result = get_history_data(coin)
             openPrice = float(result['Close'].iloc[[0]].iloc[0])
             closePrice = float(result['Close'].iloc[[-1]].iloc[0])
-            percents = (closePrice / 100) * 2
+            percents = (closePrice / 100) * 1.5
             if closePrice > openPrice:
                 if closePrice - openPrice > percents:
                     whiteList.append(coin)
@@ -305,6 +305,7 @@ def makeWhiteList(coins):
 passescoins = []
 coins = ['BTCUSDT', 'LTCUSDT', 'ETHUSDT', 'NEOUSDT', 'BNBUSDT', 'QTUMUSDT', 'EOSUSDT', 'SNTUSDT', 'BNTUSDT', 'GASUSDT', 'OAXUSDT', 'ZRXUSDT', 'OMGUSDT', 'LRCUSDT', 'TRXUSDT', 'FUNUSDT', 'KNCUSDT', 'XVGUSDT', 'IOTAUSDT', 'LINKUSDT', 'CVCUSDT', 'MTLUSDT', 'NULSUSDT', 'STXUSDT', 'ADXUSDT', 'ETCUSDT', 'ZECUSDT', 'ASTUSDT', 'BATUSDT', 'DASHUSDT', 'POWRUSDT', 'REQUSDT', 'XMRUSDT', 'VIBUSDT', 'ENJUSDT', 'ARKUSDT', 'XRPUSDT', 'STORJUSDT', 'KMDUSDT', 'DATAUSDT', 'MANAUSDT', 'AMBUSDT', 'LSKUSDT', 'ADAUSDT', 'XLMUSDT', 'WAVESUSDT', 'ICXUSDT', 'ELFUSDT', 'RLCUSDT', 'PIVXUSDT', 'IOSTUSDT', 'STEEMUSDT', 'BLZUSDT', 'SYSUSDT', 'ONTUSDT', 'ZILUSDT', 'XEMUSDT', 'WANUSDT', 'LOOMUSDT', 'TUSDUSDT', 'ZENUSDT', 'THETAUSDT', 'IOTXUSDT', 'QKCUSDT', 'SCUSDT', 'KEYUSDT', 'DENTUSDT', 'IQUSDT', 'ARDRUSDT', 'HOTUSDT', 'VETUSDT', 'DOCKUSDT', 'VTHOUSDT', 'ONGUSDT', 'RVNUSDT', 'DCRUSDT', 'USDCUSDT', 'RENUSDT', 'FETUSDT', 'TFUELUSDT', 'CELRUSDT', 'MATICUSDT', 'ATOMUSDT', 'PHBUSDT', 'ONEUSDT', 'FTMUSDT', 'CHZUSDT', 'COSUSDT', 'ALGOUSDT', 'DOGEUSDT', 'DUSKUSDT', 'ANKRUSDT', 'WINUSDT', 'BANDUSDT', 'HBARUSDT', 'XTZUSDT', 'DGBUSDT', 'NKNUSDT', 'EURUSDT', 'KAVAUSDT', 'ARPAUSDT', 'CTXCUSDT', 'AERGOUSDT', 'BCHUSDT', 'TROYUSDT', 'VITEUSDT', 'FTTUSDT', 'OGNUSDT', 'DREPUSDT', 'WRXUSDT', 'LTOUSDT', 'MBLUSDT', 'COTIUSDT', 'HIVEUSDT', 'STPTUSDT', 'SOLUSDT', 'CTSIUSDT', 'CHRUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT', 'JSTUSDT', 'FIOUSDT', 'STMXUSDT', 'MDTUSDT', 'PNTUSDT', 'COMPUSDT', 'IRISUSDT', 'MKRUSDT', 'SXPUSDT', 'SNXUSDT', 'ETHUPUSDT', 'ETHDOWNUSDT', 'DOTUSDT', 'BNBUPUSDT', 'BNBDOWNUSDT', 'AVAUSDT', 'BALUSDT', 'YFIUSDT', 'ANTUSDT', 'CRVUSDT', 'SANDUSDT', 'OCEANUSDT', 'NMRUSDT', 'LUNAUSDT', 'IDEXUSDT', 'RSRUSDT', 'PAXGUSDT', 'WNXMUSDT', 'TRBUSDT', 'WBTCUSDT', 'KSMUSDT', 'SUSHIUSDT', 'DIAUSDT', 'BELUSDT', 'UMAUSDT', 'WINGUSDT', 'CREAMUSDT', 'UNIUSDT', 'OXTUSDT', 'SUNUSDT', 'AVAXUSDT', 'BURGERUSDT', 'BAKEUSDT', 'FLMUSDT', 'SCRTUSDT', 'XVSUSDT', 'CAKEUSDT', 'ALPHAUSDT', 'ORNUSDT', 'UTKUSDT', 'NEARUSDT', 'VIDTUSDT', 'AAVEUSDT', 'FILUSDT', 'INJUSDT', 'CTKUSDT', 'AUDIOUSDT', 'AXSUSDT', 'AKROUSDT', 'HARDUSDT', 'KP3RUSDT', 'SLPUSDT', 'STRAXUSDT', 'UNFIUSDT', 'CVPUSDT', 'FORUSDT', 'FRONTUSDT', 'ROSEUSDT', 'PROMUSDT', 'SKLUSDT', 'GLMUSDT', 'GHSTUSDT', 'DFUSDT', 'JUVUSDT', 'PSGUSDT', 'GRTUSDT', 'CELOUSDT', 'TWTUSDT', 'REEFUSDT', 'OGUSDT', 'ATMUSDT', 'ASRUSDT', '1INCHUSDT', 'RIFUSDT', 'TRUUSDT', 'DEXEUSDT', 'CKBUSDT', 'FIROUSDT', 'LITUSDT', 'PROSUSDT', 'SFPUSDT', 'FXSUSDT', 'DODOUSDT', 'UFTUSDT', 'ACMUSDT', 'PHAUSDT', 'BADGERUSDT', 'FISUSDT', 'OMUSDT', 'PONDUSDT', 'ALICEUSDT', 'DEGOUSDT', 'BIFIUSDT', 'LINAUSDT']
 makeWhiteList(coins)
+# whiteList = ['LTCUSDT']
 for coin in whiteList:
     get_history_data(coin)
     
