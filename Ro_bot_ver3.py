@@ -40,7 +40,7 @@ def sendSellError(coin):
 def sendSell(coin):
     bot.send_message(id, f'We in a sell stage {coin}')
 def sendTicket(ticket):
-    bot.send_message(id, f'Coin is {ticket.symbol[0]} price{ticket.price[0]} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
+    bot.send_message(id, f'Coin is {ticket.symbol[0]} price is {ticket.price[0]} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
 
 api_secret = 'l8yABl6afXbNUhKZRowpnnenT8Aef0P4VwdtLg3tJjPDF5ucuKXEQGunZdZhAodd'
 api_key = 'y9VrYUhVwnnHrymwAvlPS3MbqpsNJBK1pLRYy71qudlJadJTruNnk5APTOnVp0zu'
@@ -75,8 +75,8 @@ class ticket:
         now = datetime.now()
         self.symbol = symbol,
         self.price = price,
-        self.takeprofit = price + price / 100,
-        self.stoploss = price - price / 100,
+        self.takeprofit = price + price / 100 * 0.5,
+        self.stoploss = price - price / 100 * 0.5,
         self.qty = qty,
         self.time = now,
         self.sold = False,
@@ -85,7 +85,7 @@ class ticket:
 def get_history_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "5 hours ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "3 hours ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     # result['time'] = pd.to_datetime(result['time'], unit='ms')
@@ -103,7 +103,7 @@ def get_history_data(coin):
 def get_data(coin):
     global result
     client = Client(api_key, api_secret)
-    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "1 minute ago UTC")
+    klines = client.get_historical_klines(coin, Client.KLINE_INTERVAL_1MINUTE, "2 minute ago UTC")
     result = pd.DataFrame(klines)
     result = result.rename(columns={0 : 'time', 1 : 'Open', 2 : 'High', 3 : 'Low', 4 : 'Close', 5 : 'Volume', 6 : 'Close time', 7 : 'Quote', 8 : 'Number of trades', 9 : 'Taker buy', 10 : 'Taker buy quote', 11 : 'Ignore'})
     # cresult['time'] = pd.to_datetime(result['time'], unit='ms')
@@ -258,12 +258,9 @@ def Strategy(passcoin):
         balances.append(balance)
     for ticket in tickets:
         if ticket.symbol[0] == coin and sma - smaK >= 0 and ticket.takeprofit[0] < price and ticket.sold[0] == False:
-            print('Ticket moving')
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
-        if ticket.symbol[0] == coin:
-            print(ticket.symbol[0], ticket.takeprofit[0], price, ticket.stoploss[0])
         if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
             ticket.profit = True
             sell(ticket)
@@ -293,8 +290,10 @@ def makeWhiteList(coins):
             result = get_history_data(coin)
             openPrice = float(result['Close'].iloc[[0]].iloc[0])
             closePrice = float(result['Close'].iloc[[-1]].iloc[0])
+            percents = (closePrice / 100) * 2
             if closePrice > openPrice:
-                whiteList.append(coin)
+                if closePrice - openPrice > percents:
+                    whiteList.append(coin)
         except Exception as E:
             continue
     
