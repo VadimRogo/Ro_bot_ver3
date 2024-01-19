@@ -61,9 +61,9 @@ counterProfit = 1
 counterLoss = 1
 
 def takeprofitMove(ord, percent):
-    ord.takeprofit[0] = float(ord.takeprofit[0] + percent * 0.7)
+    ord.takeprofit = list(list(ord.takeprofit)[0] + percent * 0.7)
 def stoplossMove(ord, percent):
-    ord.stoploss[0] = float(ord.stoploss[0] + percent * 0.5)
+    ord.stoploss = list(list(ord.stoploss)[0] + percent * 0.5)
 
 class passcoin:
     def __init__(self, coin, dataframe):
@@ -203,7 +203,7 @@ def sell(ticket):
         if balance_usdt > 10:
             # quantity = math.floor(balance_coin * (10 ** ticket.precision) * 0.999) / (10 ** ticket.precision)
             quantity = round(ticket.qty[0], ticket.precision[0])
-            errorSell(ticket[0], quantity)
+            errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
 
@@ -213,7 +213,7 @@ def errorSell(ticket, quantity):
             symbol=ticket.symbol[0],
             quantity=quantity
             )
-        print('Sold before error', ticket.symbol)
+        print('Sold before error', ticket.symbol[0])
         ticket.sold = True
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
