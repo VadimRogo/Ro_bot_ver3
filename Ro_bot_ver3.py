@@ -61,9 +61,9 @@ counterProfit = 1
 counterLoss = 1
 
 def takeprofitMove(ord, percent):
-    ord.takeprofit = float(ord.takeprofit[0] + percent * 0.7)
+    ord.takeprofit[0] = float(ord.takeprofit + percent * 0.7)
 def stoplossMove(ord, percent):
-    ord.stoploss = float(ord.stoploss[0] + percent * 0.5)
+    ord.stoploss[0] = float(ord.stoploss + percent * 0.5)
 
 class passcoin:
     def __init__(self, coin, dataframe):
@@ -317,6 +317,7 @@ for passcoin in passescoins:
 startTelebot()
 sendWhiteList(whiteList)
 OnPosition = False
+print(whiteList)
 for i in range(600):
     for passcoin in passescoins:
         try:
