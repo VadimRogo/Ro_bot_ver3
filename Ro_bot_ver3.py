@@ -61,9 +61,11 @@ counterProfit = 1
 counterLoss = 1
 
 def takeprofitMove(ord, percent):
-    ord.takeprofit = list(list(ord.takeprofit)[0] + percent * 0.7)
+    ord.takeprofit[0] = ord.takeprofit[0] + percent * 0.7
+    # ord.takeprofit = list(list(ord.takeprofit)[0] + percent * 0.7)
 def stoplossMove(ord, percent):
-    ord.stoploss = list(list(ord.stoploss)[0] + percent * 0.5)
+    ord.stoploss[0] = ord.stoploss[0] + percent * 0.5
+    # ord.stoploss = list(list(ord.stoploss)[0] + percent * 0.5)
 
 class passcoin:
     def __init__(self, coin, dataframe):
@@ -188,12 +190,12 @@ def sell(ticket):
                 )
             print('Sold ', ticket.symbol[0])
             sendSold(ticket.symbol[0])
-            ticket.sold = True 
+            ticket.sold[0] = True 
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
         else:
             sendLose(ticket.symbol[0])
-            ticket.sold = True
+            ticket.sold[0] = True
     except Exception as E:
         print(E)
         sendSellError(ticket.symbol[0])
@@ -213,7 +215,7 @@ def errorSell(ticket, quantity):
             quantity=quantity
             )
         print('Sold before error', ticket.symbol[0])
-        ticket.sold = True
+        ticket.sold[0] = True
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     except Exception as E:
@@ -235,7 +237,7 @@ def errorSell(ticket, quantity):
                 if counter == 5:
                     print('We lose all')
                     sendLose(ticket.symbol[0])
-                    ticket.sold = True
+                    ticket.sold[0] = True
                     break
 
 def Strategy(passcoin):
