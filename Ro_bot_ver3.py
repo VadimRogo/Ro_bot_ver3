@@ -61,9 +61,9 @@ counterProfit = 1
 counterLoss = 1
 
 def takeprofitMove(ord, percent):
-    ord.takeprofit[0] = float(ord.takeprofit + percent * 0.7)
+    ord.takeprofit[0] = float(ord.takeprofit[0] + percent * 0.7)
 def stoplossMove(ord, percent):
-    ord.stoploss[0] = float(ord.stoploss + percent * 0.5)
+    ord.stoploss[0] = float(ord.stoploss[0] + percent * 0.5)
 
 class passcoin:
     def __init__(self, coin, dataframe):
@@ -240,7 +240,7 @@ def errorSell(ticket, quantity):
                     break
 
 def Strategy(passcoin):
-    global balances
+    global balances, tickets
     coin = passcoin.coin
     price = float(passcoin.dataframe['Close'].iloc[[-1]].iloc[0])
     percent = price / 100
@@ -265,12 +265,12 @@ def Strategy(passcoin):
         if ticket.symbol[0] == coin:
             print(f'symbol is {ticket.symbol[0]} takeprofit is {ticket.takeprofit[0]} price is {price} stoploss is {ticket.stoploss[0]}, sold is {ticket.sold[0]}')
         if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
-            ticket.profit = True
+            ticket.profit[0] = True
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
         elif ticket.symbol[0] == coin and ticket.stoploss[0] > price and ticket.sold[0] == False:
-            ticket.profit = False
+            ticket.profit[0] = False
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
@@ -279,7 +279,7 @@ def makeStatistic(i):
     global counterProfit
     for ticket in tickets:
         if hasattr(ord, 'profit'):
-            if ticket.profit == True:
+            if ticket.profit[0] == True:
                 counterProfit += 1
             
     Statistic = len(tickets) / counterProfit
