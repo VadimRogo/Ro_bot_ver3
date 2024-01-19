@@ -319,7 +319,7 @@ sendWhiteList(whiteList)
 OnPosition = False
 print(whiteList)
 for passcoin in passescoins:
-    print(passescoins.coin)
+    print(passcoin.coin)
 for i in range(600):
     for passcoin in passescoins:
         try:
