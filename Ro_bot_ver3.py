@@ -265,12 +265,12 @@ def Strategy(passcoin):
         if ticket.symbol[0] == coin:
             print(f'symbol is {ticket.symbol[0]} takeprofit is {ticket.takeprofit[0]} price is {price} stoploss is {ticket.stoploss[0]}, sold is {ticket.sold[0]}')
         if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
-            ticket.profit[0] = True
+            ticket.profit = True
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
         elif ticket.symbol[0] == coin and ticket.stoploss[0] > price and ticket.sold[0] == False:
-            ticket.profit[0] = False
+            ticket.profit = False
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
@@ -279,7 +279,7 @@ def makeStatistic(i):
     global counterProfit
     for ticket in tickets:
         if hasattr(ord, 'profit'):
-            if ticket.profit[0] == True:
+            if ticket.profit == True:
                 counterProfit += 1
             
     Statistic = len(tickets) / counterProfit
@@ -314,12 +314,11 @@ for passcoin in passescoins:
         get_data(passcoin.coin)
     except Exception as E:
         print(f'Error with coin {passcoin.coin}')        
+
 startTelebot()
 sendWhiteList(whiteList)
 OnPosition = False
 print(whiteList)
-for passcoin in passescoins:
-    print(passcoin.coin)
 for i in range(600):
     for passcoin in passescoins:
         try:
