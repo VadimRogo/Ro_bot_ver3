@@ -183,6 +183,8 @@ def sell(ticket):
     try:
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price[0]
+        print('balance is ', balance_coin, ticket.qty)
+        print('ticket balance is ', ticket.qty[0])
         if balance_usdt > 6:
             order = client.order_market_sell(
                 symbol=ticket.symbol[0],
