@@ -173,9 +173,9 @@ def buy(symbol, price):
                 sendBought(symbol)
                 qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
                 precision = get_precision(symbol)
-                qty = math.floor(qty * (10 ** precision)) / (10 ** float(get_precision))
-                print(f'qty is {qty}, balance is {float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])}')
-                x = ticket(symbol, price, qty, precision)
+                quantity = math.floor(qty * (10 ** precision)) / (10 ** float(get_precision))
+                print(f'qty is {qty}, quantity before changed is {quantity}')
+                x = ticket(symbol, price, quantity, precision)
                 sendTicket(x)
                 tickets.append(x)
     except Exception as E:
