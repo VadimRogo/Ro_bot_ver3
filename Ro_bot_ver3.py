@@ -61,9 +61,11 @@ counterProfit = 1
 counterLoss = 1
 
 def takeprofitMove(ord, percent):
+    ord.takeprofit = list(ord.takeprofit)
     ord.takeprofit[0] = ord.takeprofit[0] + percent * 0.7
     # ord.takeprofit = list(list(ord.takeprofit)[0] + percent * 0.7)
 def stoplossMove(ord, percent):
+    ord.stoploss = list(ord.stoploss)
     ord.stoploss[0] = ord.stoploss[0] + percent * 0.5
     # ord.stoploss = list(list(ord.stoploss)[0] + percent * 0.5)
 
@@ -202,7 +204,7 @@ def sell(ticket):
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 10:
-            quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.999) / (10 ** ticket.precision[0])
+            quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.98) / (10 ** ticket.precision[0])
             # quantity = round(ticket.qty[0], ticket.precision[0])
             errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
@@ -224,7 +226,7 @@ def errorSell(ticket, quantity):
         counter = 0
         while True:
             try:
-                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.99) / (10 ** ticket.precision[0])
+                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.98) / (10 ** ticket.precision[0])
                 quantity = round(ticket.qty[0], ticket.precision[0])
                 order = client.order_market_sell(
                     symbol=ticket.symbol[0],
