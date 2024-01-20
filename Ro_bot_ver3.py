@@ -171,7 +171,7 @@ def buy(symbol, price):
                 )
                 print(f'Bought {symbol}')
                 sendBought(symbol)
-                
+                qty = float(client.get_asset_balance(asset=f"{symbol[0].replace('USDT', '')}")['free'])
                 x = ticket(symbol, price, qty, precision)
                 sendTicket(x)
                 tickets.append(x)
@@ -203,9 +203,8 @@ def sell(ticket):
         sendSellError(ticket.symbol[0])
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price[0]
-        if balance_usdt > 10:
-            quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.98) / (10 ** ticket.precision[0])
-            # quantity = round(ticket.qty[0], ticket.precision[0])
+        if balance_usdt > 6:
+            quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.99) / (10 ** ticket.precision[0])
             errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
@@ -226,7 +225,7 @@ def errorSell(ticket, quantity):
         counter = 0
         while True:
             try:
-                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.98) / (10 ** ticket.precision[0])
+                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.95) / (10 ** ticket.precision[0])
                 quantity = round(ticket.qty[0], ticket.precision[0])
                 order = client.order_market_sell(
                     symbol=ticket.symbol[0],
