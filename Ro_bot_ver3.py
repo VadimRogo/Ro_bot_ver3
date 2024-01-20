@@ -195,6 +195,7 @@ def sell(ticket):
                 )
             print('Sold ', ticket.symbol[0])
             sendSold(ticket.symbol[0])
+            ticket.sold = list(ticket.sold)
             ticket.sold[0] = True 
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
