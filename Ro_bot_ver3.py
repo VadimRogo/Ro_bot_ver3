@@ -20,8 +20,8 @@ def startTelebot():
 
 def sendStatistic(statistic, cycle):
     bot.send_message(id, f' Statistic is {str(statistic)}, num of tickets is {str(len(tickets))}, cycle num {cycle}', parse_mode='Markdown')
-def sendLose(symbol):
-    bot.send_message(id, f'We need to sell this coin {symbol}')
+def sendLose(symbol, balanceQty, ticketQty):
+    bot.send_message(id, f'We need to sell this coin {symbol}, balance is {balanceQty}, ticket qty is {ticketQty}')
 # def sendSignalToBuy(coin):
 #     bot.send_message(id, f'We should buy {coin}')
 def sendBought(symbol):
@@ -185,7 +185,7 @@ def sell(ticket):
     try:
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price[0]
-        print('balance is ', balance_coin, ticket.qty[0])
+        print(f'balance is {balance_coin} ticket qty is {ticket.qty[0]}')
         if balance_usdt > 6:
             order = client.order_market_sell(
                 symbol=ticket.symbol[0],
@@ -198,6 +198,7 @@ def sell(ticket):
             balances.append(balance)
         else:
             sendLose(ticket.symbol[0])
+            ticket.sold = list(ticket.sold)
             ticket.sold[0] = True
     except Exception as E:
         print(E)
@@ -205,7 +206,8 @@ def sell(ticket):
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 6:
-            quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.99) / (10 ** ticket.precision[0])
+            quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.9995) / (10 ** ticket.precision[0])
+            quantity = round(quantity, ticket.precision[0])
             errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
@@ -226,7 +228,7 @@ def errorSell(ticket, quantity):
         counter = 0
         while True:
             try:
-                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.95) / (10 ** ticket.precision[0])
+                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.99) / (10 ** ticket.precision[0])
                 quantity = round(ticket.qty[0], ticket.precision[0])
                 order = client.order_market_sell(
                     symbol=ticket.symbol[0],
@@ -238,7 +240,8 @@ def errorSell(ticket, quantity):
                 counter += 1
                 if counter == 5:
                     print('We lose all')
-                    sendLose(ticket.symbol[0])
+                    sendLose(ticket.symbol[0], quantity, ticket.qty[0])
+                    ticket.sold = list(ticket.sold)
                     ticket.sold[0] = True
                     break
 
