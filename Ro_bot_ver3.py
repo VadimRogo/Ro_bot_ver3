@@ -301,7 +301,8 @@ def makeWhiteList(coins):
             closePrice = float(result['Close'].iloc[[-1]].iloc[0])
             percents = (closePrice / 100) * 1.5
             if closePrice > openPrice:
-                whiteList.append(coin)
+                if closePrice - openPrice > percents:
+                    whiteList.append(coin)
         except Exception as E:
             continue
     
