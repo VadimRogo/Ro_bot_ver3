@@ -173,7 +173,7 @@ def buy(symbol, price):
                 sendBought(symbol)
                 qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
                 precision = get_precision(symbol)
-                quantity = math.floor(qty * (10 ** precision)) / (10 ** float(get_precision))
+                quantity = math.floor(qty * (10 ** precision)) / (10 ** precision)
                 print(f'qty is {qty}, quantity before changed is {quantity}')
                 x = ticket(symbol, price, quantity, precision)
                 sendTicket(x)
