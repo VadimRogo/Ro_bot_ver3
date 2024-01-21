@@ -163,7 +163,7 @@ def buy(symbol, price):
             x = checkPrecision(price, precision)
             if x > 0:
                 qty = partOfBalance / x
-                qty = round(qty, precision)
+                qty = round(qty, int(precision))
                 order = client.create_order(
                     symbol=symbol,
                     side=Client.SIDE_BUY,
