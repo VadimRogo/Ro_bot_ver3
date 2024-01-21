@@ -137,6 +137,7 @@ def append_last_minute(obj, dataframe):
     obj.dataframe = pd.concat([obj.dataframe, dataframe], ignore_index=True)
 
 def get_precision(symbol):
+   global precision
    for x in info['symbols']:
        if x['symbol'] == symbol:
          precision = x['quantityPrecision']
