@@ -152,7 +152,7 @@ def checkPrecision(price, precision):
         precision = 1
     else:
         precision = int(precision)
-    x = round(price, precision)
+    x = round(price, int(precision))
     return x
 
 def buy(symbol, price):
