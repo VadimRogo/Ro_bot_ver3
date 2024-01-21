@@ -141,9 +141,9 @@ def get_precision(symbol):
        if x['symbol'] == symbol:
          precision = x['quantityPrecision']
          if precision == 0 or precision == None:
-             precision = 1
+             precision = float(1)
          else:
-            precision = int(precision)
+            precision = float(precision)
          return precision
         
 def checkPrecision(price, precision):
@@ -179,6 +179,7 @@ def buy(symbol, price):
                 sendTicket(x)
                 tickets.append(x)
     except Exception as E:
+        print(type(qty), type(quantity), type(precision))
         print(E)    
         sendCantBuy(symbol)
         print(symbol)
