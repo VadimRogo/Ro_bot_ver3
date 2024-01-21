@@ -272,7 +272,7 @@ def Strategy(passcoin):
             takeprofitMove(ticket, percent)
             stoplossMove(ticket, percent)
     for ticket in tickets:
-        if ticket.symbol[0] == coin:
+        if ticket.symbol[0] == coin and ticket.sold[0] == False:
             print(f'symbol is {ticket.symbol[0]} takeprofit is {ticket.takeprofit[0]} price is {price} stoploss is {ticket.stoploss[0]}, sold is {ticket.sold[0]}')
         if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
             ticket.profit = True
