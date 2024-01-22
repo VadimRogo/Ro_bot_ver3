@@ -148,7 +148,7 @@ def get_precision(symbol):
          return precision
         
 def checkPrecision(price, precision):
-    if precision == 0 or precision == None:
+    if precision == 0 or precision is None:
         precision = 1
     else:
         precision = int(precision)
@@ -220,6 +220,8 @@ def sell(ticket):
         balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 6:
             quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.9995) / (10 ** ticket.precision[0])
+            if ticket.precision[0] is None:
+                ticket.precision[0] = int(1)
             quantity = round(quantity, int(ticket.precision[0]))
             errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
@@ -243,7 +245,7 @@ def errorSell(ticket, quantity):
         counter = 1
         while True:
             try:
-                quantity = math.floor(quantity * (10 ** ticket.precision[0] + counter) * 0.99) / (10 ** ticket.precision[0])
+                quantity = math.floor(quantity * (10 ** (ticket.precision[0] + counter)) * 0.99) / (10 ** (ticket.precision[0] + counter))
                 quantity = round(quantity, int(ticket.precision[0]))
                 order = client.order_market_sell(
                     symbol=ticket.symbol[0],
