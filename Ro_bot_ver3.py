@@ -141,7 +141,7 @@ def get_precision(symbol):
    for x in info['symbols']:
        if x['symbol'] == symbol:
          precision = x['quantityPrecision']
-         if precision == 0 or precision == None:
+         if precision == 0 or precision == None or precision is None:
              precision = float(1)
          else:
             precision = float(precision)
@@ -175,6 +175,8 @@ def buy(symbol, price):
                 qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
                 precision = get_precision(symbol)
                 # quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
+                if precision is None:
+                    precision = int(1)
                 quantity = math.floor(qty * (10 ** int(precision)) * 0.9995) / (10 ** int(precision))
                 quantity = round(quantity, int(precision))
                 print(f'qty is {qty}, quantity before changed is {quantity}')
