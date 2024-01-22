@@ -218,7 +218,7 @@ def sell(ticket):
         balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 6:
             quantity = math.floor(ticket.qty[0] * (10 ** ticket.precision[0]) * 0.9995) / (10 ** ticket.precision[0])
-            quantity = round(quantity, ticket.precision[0])
+            quantity = round(quantity, int(ticket.precision[0]))
             errorSell(ticket, quantity)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
