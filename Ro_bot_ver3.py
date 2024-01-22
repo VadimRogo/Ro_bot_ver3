@@ -174,7 +174,9 @@ def buy(symbol, price):
                 sendBought(symbol)
                 qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
                 precision = get_precision(symbol)
-                quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
+                # quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
+                quantity = math.floor(qty * (10 ** int(precision)) * 0.9995) / (10 ** int(precision))
+                quantity = round(quantity, int(precision))
                 print(f'qty is {qty}, quantity before changed is {quantity}')
                 x = ticket(symbol, price, quantity, precision)
                 sendTicket(x)
@@ -182,7 +184,8 @@ def buy(symbol, price):
     except Exception as E:
         precision = get_precision(symbol)
         qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
-        quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
+        quantity = math.floor(qty * (10 ** int(precision)) * 0.9995) / (10 ** int(precision))
+        # quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
         print(type(qty), type(quantity), type(precision))
         print(E)    
         sendCantBuy(symbol)
@@ -227,21 +230,24 @@ def errorSell(ticket, quantity):
             quantity=quantity
             )
         print('Sold before error', ticket.symbol[0])
+        sendSellError(ticket.symbol[0])
+        ticket.sold = list(ticket.sold)
         ticket.sold[0] = True
         balance = float(client.get_asset_balance(asset='USDT')['free'])
         balances.append(balance)
     except Exception as E:
         print(ticket.symbol[0])
         print("Okey it doesn't work")
-        counter = 0
+        counter = 1
         while True:
             try:
-                quantity = math.floor(quantity * (10 ** ticket.precision[0]) * 0.99) / (10 ** ticket.precision[0])
-                quantity = round(quantity, ticket.precision[0])
+                quantity = math.floor(quantity * (10 ** ticket.precision[0] + counter) * 0.99) / (10 ** ticket.precision[0])
+                quantity = round(quantity, int(ticket.precision[0]))
                 order = client.order_market_sell(
                     symbol=ticket.symbol[0],
                     quantity=quantity
                 )
+                sendSellError(ticket.symbol[0])
                 print('sold before error error')
                 break
             except:
