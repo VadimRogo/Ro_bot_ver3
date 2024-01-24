@@ -174,11 +174,11 @@ def buy(symbol, price):
                 sendBought(symbol)
                 qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
                 precision = get_precision(symbol)
-                # quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
                 if precision is None:
                     precision = int(1)
-                quantity = math.floor(qty * (10 ** int(precision)) * 0.9995) / (10 ** int(precision))
-                quantity = round(quantity, int(precision))
+                for filt in client.get_symbol_info(symbol)['filters']:
+                    if filt['filterType'] == 'LOT_SIZE':
+                        quantity = qty // float(filt['stepSize']) 
                 print(f'qty is {qty}, quantity before changed is {quantity}')
                 x = ticket(symbol, price, quantity, precision)
                 sendTicket(x)
