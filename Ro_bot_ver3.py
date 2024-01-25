@@ -41,6 +41,9 @@ def sendSell(coin):
     bot.send_message(id, f'We in a sell stage {coin}')
 def sendTicket(ticket):
     bot.send_message(id, f'Coin is {ticket.symbol[0]} price is {ticket.price[0]} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
+def sendProfit(ticket):
+    bot.send_message(id, f'Profit is of the {ticket.symbol[0]} is {ticket.profit[0]}')
+
 
 api_secret = 'l8yABl6afXbNUhKZRowpnnenT8Aef0P4VwdtLg3tJjPDF5ucuKXEQGunZdZhAodd'
 api_key = 'y9VrYUhVwnnHrymwAvlPS3MbqpsNJBK1pLRYy71qudlJadJTruNnk5APTOnVp0zu'
@@ -174,14 +177,14 @@ def buy(symbol, price):
                 )
                 print(f'Bought {symbol}')
                 sendBought(symbol)
-                qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
+                qty_balance = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
                 precision = get_precision(symbol)
                 if precision is None:
                     precision = int(1)
                 for filt in client.get_symbol_info(symbol)['filters']:
                     if filt['filterType'] == 'LOT_SIZE':
                         quantity = qty - (qty % float(filt['stepSize'])) 
-                print(f'qty is {qty}, quantity before changed is {quantity}')
+                print(f'balance is {qty_balance}, quantity before changed is {quantity}, buy qty is {qty}')
                 x = ticket(symbol, price, quantity, precision)
                 sendTicket(x)
                 tickets.append(x)
@@ -293,16 +296,17 @@ def Strategy(passcoin):
         if ticket.symbol[0] == coin and ticket.sold[0] == False:
             print(f'symbol is {ticket.symbol[0]} takeprofit is {ticket.takeprofit[0]} price is {price} stoploss is {ticket.stoploss[0]}, sold is {ticket.sold[0]}')
         if ticket.symbol[0] == coin and ticket.takeprofit[0] < price and ticket.sold[0] == False:
-            ticket.profit = True
+            ticket.profit = ticket.qty[0] * price / (ticket.qty[0] * ticket.price[0] / 100) - 100
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
+            sendProfit(ticket)
         elif ticket.symbol[0] == coin and ticket.stoploss[0] > price and ticket.sold[0] == False:
-            ticket.profit = False
+            ticket.profit = ticket.qty[0] * price / (ticket.qty[0] * ticket.price[0] / 100) - 100
             sell(ticket)
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
-
+            sendProfit(ticket)
 def makeStatistic(i):
     global counterProfit
     for ticket in tickets:
