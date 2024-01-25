@@ -161,6 +161,8 @@ def buy(symbol, price):
         if float(balance) > partOfBalance:
             precision = get_precision(symbol)
             x = checkPrecision(price, precision)
+            if precision is None:
+                    precision = int(1)
             if x > 0:
                 qty = partOfBalance / x
                 qty = round(qty, int(precision))
@@ -178,13 +180,15 @@ def buy(symbol, price):
                     precision = int(1)
                 for filt in client.get_symbol_info(symbol)['filters']:
                     if filt['filterType'] == 'LOT_SIZE':
-                        quantity = qty // float(filt['stepSize']) 
+                        quantity = qty - (qty % float(filt['stepSize'])) 
                 print(f'qty is {qty}, quantity before changed is {quantity}')
                 x = ticket(symbol, price, quantity, precision)
                 sendTicket(x)
                 tickets.append(x)
     except Exception as E:
         precision = get_precision(symbol)
+        if precision is None:
+                    precision = int(1)
         qty = float(client.get_asset_balance(asset=f"{symbol.replace('USDT', '')}")['free'])
         quantity = math.floor(qty * (10 ** int(precision)) * 0.9995) / (10 ** int(precision))
         # quantity = math.floor(qty * (10 ** int(precision))) / (10 ** int(precision))
