@@ -42,7 +42,7 @@ def sendSell(coin):
 def sendTicket(ticket):
     bot.send_message(id, f'Coin is {ticket.symbol[0]} price is {ticket.price[0]} takeprofit is {ticket.takeprofit[0]} stoploss is {ticket.stoploss[0]}')
 def sendProfit(ticket):
-    bot.send_message(id, f'Profit is of the {ticket.symbol[0]} is {ticket.profit[0]}')
+    bot.send_message(id, f'Profit is of the {ticket.symbol[0]} is {ticket.profit}')
 
 
 api_secret = 'l8yABl6afXbNUhKZRowpnnenT8Aef0P4VwdtLg3tJjPDF5ucuKXEQGunZdZhAodd'
@@ -223,6 +223,7 @@ def sell(ticket):
     except Exception as E:
         print(E)
         sendSellError(ticket.symbol[0])
+        ticket.sold[0] = True
         balance_coin = float(client.get_asset_balance(asset=f"{ticket.symbol[0].replace('USDT', '')}")['free'])
         balance_usdt = balance_coin * ticket.price[0]
         if balance_usdt > 6:
@@ -259,7 +260,7 @@ def errorSell(ticket, quantity):
                     quantity=quantity
                 )
                 sendSellError(ticket.symbol[0])
-                print('sold before error error')
+                print(f'sold before error error {ticket.symbol[0]} quantity is {quantity} ticket qty is {ticket.qty[0]}')
                 break
             except:
                 counter += 1
@@ -307,6 +308,7 @@ def Strategy(passcoin):
             balance = float(client.get_asset_balance(asset='USDT')['free'])
             balances.append(balance)
             sendProfit(ticket)
+
 def makeStatistic(i):
     global counterProfit
     for ticket in tickets:
